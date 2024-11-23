@@ -120,7 +120,7 @@ resource "aws_iam_policy" "dynamodb_access_policy" {
           "dynamodb:Scan",
           "dynamodb:UpdateItem"
         ]
-        Resource = aws_dynamodb_table.pedidos_table.arn
+        Resource = "arn:aws:dynamodb:us-east-2:992382363343:table/mspedido"
       }
     ]
   })
