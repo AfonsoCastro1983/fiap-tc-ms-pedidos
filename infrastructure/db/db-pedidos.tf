@@ -9,7 +9,7 @@ resource "aws_dynamodb_table" "pedido_table" {
 
   attribute {
     name = "id"
-    type = "N" # Número
+    type = "S"
   }
 
   # Configuração opcional para facilitar consultas secundárias (Index)
