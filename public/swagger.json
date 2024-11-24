@@ -1,0 +1,398 @@
+{
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"ICliente": {
+				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"nome": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"nome",
+					"email"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IItem": {
+				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"nome": {
+						"type": "string"
+					},
+					"descricao": {
+						"type": "string"
+					},
+					"ingredientes": {
+						"type": "string"
+					},
+					"categoria": {
+						"type": "string"
+					},
+					"preco": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"id",
+					"nome",
+					"descricao",
+					"ingredientes",
+					"categoria",
+					"preco"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"PedidoResponse": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"data": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"status": {
+						"type": "string"
+					},
+					"cliente": {
+						"$ref": "#/components/schemas/ICliente"
+					},
+					"total": {
+						"type": "number",
+						"format": "double"
+					},
+					"pedidoItems": {
+						"items": {
+							"properties": {
+								"total": {
+									"type": "number",
+									"format": "double"
+								},
+								"quantidade": {
+									"type": "number",
+									"format": "double"
+								},
+								"item": {
+									"$ref": "#/components/schemas/IItem"
+								}
+							},
+							"required": [
+								"total",
+								"quantidade",
+								"item"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"data",
+					"status",
+					"total",
+					"pedidoItems"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"Pedidos": {
+				"properties": {
+					"pedidos": {
+						"items": {
+							"$ref": "#/components/schemas/PedidoResponse"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"pedidos"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"StatusPedido": {
+				"enum": [
+					"Novo",
+					"Enviado para Pagamento",
+					"Cancelado",
+					"Enviado para a Cozinha",
+					"Em Preparação",
+					"Preparado",
+					"Pronto para a entrega",
+					"Entregue"
+				],
+				"type": "string"
+			},
+			"PedidoRequest": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"cliente": {
+						"$ref": "#/components/schemas/ICliente"
+					},
+					"itens": {
+						"items": {
+							"properties": {
+								"quantidade": {
+									"type": "number",
+									"format": "double"
+								},
+								"item": {
+									"properties": {
+										"categoria": {
+											"type": "string"
+										},
+										"ingredientes": {
+											"type": "string"
+										},
+										"preco": {
+											"type": "number",
+											"format": "double"
+										},
+										"descricao": {
+											"type": "string"
+										},
+										"nome": {
+											"type": "string"
+										},
+										"id": {
+											"type": "number",
+											"format": "double"
+										}
+									},
+									"required": [
+										"categoria",
+										"ingredientes",
+										"preco",
+										"descricao",
+										"nome",
+										"id"
+									],
+									"type": "object"
+								}
+							},
+							"required": [
+								"quantidade",
+								"item"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"status": {
+						"$ref": "#/components/schemas/StatusPedido"
+					}
+				},
+				"type": "object",
+				"additionalProperties": true
+			},
+			"PedidoStatusRequest": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": true
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "fiap-tc-ms-pedidos",
+		"version": "1.0.0",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {}
+	},
+	"paths": {
+		"/pedido/id/{id}": {
+			"get": {
+				"operationId": "BuscaPorId",
+				"responses": {
+					"200": {
+						"description": "Lista de pedidos encontrados",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Pedidos"
+								}
+							}
+						}
+					}
+				},
+				"description": "Busca um pedido específico",
+				"tags": [
+					"Pedido"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "identificador do pedido",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/pedido/listagem/{status}": {
+			"get": {
+				"operationId": "BuscaPorStatus",
+				"responses": {
+					"200": {
+						"description": "Lista de pedidos encontrados",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Pedidos"
+								}
+							}
+						}
+					}
+				},
+				"description": "Busca pedidos por um status específico",
+				"tags": [
+					"Pedido"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "status do pedido.\nOpções de status para pesquisar:\n- NOVO (Pedido que acabou de ser solicitado),\n- ENVIAR_PARA_PAGAMENTO (Pedido que já foi conlcuído pelo cliente e o mesmo solicitou seu pagamento)\n- CANCELADO (Pedido Cancelado, pelo cliente ou pelo sistema)\n- ENVIADO_PARA_A_COZINHA (Pedido já pago, enviado para iniciar a preparação)\n- EM_PREPARACAO (Pedido em preparação)\n- PREPARADO (Pedido finalizado e disponível para embalagem)\n- PRONTO_PARA_ENTREGA (Pedido embalado ou pronto para entrega no balcão)\n- ENTREGUE (Pedido entregue pelo cliente)",
+						"in": "path",
+						"name": "status",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/pedido/status": {
+			"get": {
+				"operationId": "BuscaPorStatusModulo2",
+				"responses": {
+					"200": {
+						"description": "Lista de pedidos encontrados",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Pedidos"
+								}
+							}
+						}
+					}
+				},
+				"description": "Busca pedidos pelos status descritos no módulo 2 (Pronto (PRONTO_PARA_ENTREGA) > Em Preparação (EM_PREPARACAO) > Recebido (ENVIADO_PARA_A_COZINHA))",
+				"tags": [
+					"Pedido"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"put": {
+				"operationId": "AtualizarStatusPedido",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "boolean"
+								}
+							}
+						}
+					}
+				},
+				"description": "Atualizar status de um pedido",
+				"tags": [
+					"Pedido"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PedidoStatusRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pedido": {
+			"post": {
+				"operationId": "CadastrarPedido",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PedidoResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Cadastrar pedido",
+				"tags": [
+					"Pedido"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PedidoRequest"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}
