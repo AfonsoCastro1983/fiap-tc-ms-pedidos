@@ -1,6 +1,7 @@
 import express from "express";
 import PedidoController from "../controllers/PedidoController";
 import { PedidoGateway } from "../../database/gateways/PedidoGateway";
+import { filaSQS } from "../../sqs/sqs";
 
 const router = express.Router()
 
@@ -22,7 +23,7 @@ router.post("/pedido", async (req, res) => {
 
         console.log("body", req.body);
 
-        const controller = new PedidoController(new PedidoGateway());
+        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
         const item = await controller.cadastrarPedido(req.body);
 
         return res.status(201).send(item);
@@ -48,7 +49,7 @@ router.put("/pedido/status", async (req, res) => {
             req.body.cliente = cli.id;
         }*/
         
-        const controller = new PedidoController(new PedidoGateway());
+        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
         const item = await controller.atualizarStatusPedido(req.body);
 
         return res.status(201).send(item);
@@ -62,7 +63,7 @@ router.put("/pedido/status", async (req, res) => {
 ///1ªFase - Entregáveis 2 - vi. Listar pedidos
 router.get("/pedido/listagem/:status", async (req, res) => {
     try {
-        const controller = new PedidoController(new PedidoGateway());
+        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
         console.log("status",req.params.status);
         const resposta = await controller.buscaPorStatus(req.params.status);
 
@@ -86,7 +87,7 @@ router.get("/pedido/listagem/:status", async (req, res) => {
 ////3. Pedidos com status Finalizado (ENTREGUE) não devem aparecer na lista
 router.get("/pedido/status/", async (req, res) => {
     try {
-        const controller = new PedidoController(new PedidoGateway());
+        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
         const resposta = await controller.buscaPorStatusModulo2();
 
         if (resposta) {
@@ -106,7 +107,7 @@ router.get("/pedido/status/", async (req, res) => {
 ///Buscar pedido
 router.get("/pedido/id/:id", async (req, res) => {
     try {
-        const controller = new PedidoController(new PedidoGateway());
+        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
         const resposta = await controller.buscaPorId(req.params.id);
 
         if (resposta) {
@@ -114,6 +115,26 @@ router.get("/pedido/id/:id", async (req, res) => {
         }
         else {
             return res.status(404).send("Pedido não encontrado");
+        }
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ erro: error.message });
+        }
+    }
+});
+
+///Atualizar status
+router.get("/pedido/atualizastatus/", async(req, res) => {
+    try {
+        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
+        const resposta = await controller.atualizarStatusMensageria();
+
+        if (resposta) {
+            return res.status(201).send(resposta);
+        }
+        else {
+            return res.status(404).send({erro: "Não retornou mensagens"});
         }
     }
     catch (error) {

@@ -81,7 +81,7 @@
 						"type": "number",
 						"format": "double"
 					},
-					"pedidoItems": {
+					"itens": {
 						"items": {
 							"properties": {
 								"total": {
@@ -111,7 +111,7 @@
 					"data",
 					"status",
 					"total",
-					"pedidoItems"
+					"itens"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -220,6 +220,26 @@
 				"required": [
 					"id",
 					"status"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IMensagemTransacao": {
+				"properties": {
+					"pedido": {
+						"type": "string"
+					},
+					"status": {
+						"$ref": "#/components/schemas/StatusPedido"
+					},
+					"recibo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"pedido",
+					"status",
+					"recibo"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -387,6 +407,32 @@
 						}
 					}
 				}
+			}
+		},
+		"/pedido/atualizastatus": {
+			"get": {
+				"operationId": "AtualizarStatusMensageria",
+				"responses": {
+					"200": {
+						"description": "Lista de mensagens a processar",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/IMensagemTransacao"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Atualização pela mensageria",
+				"tags": [
+					"Pedido"
+				],
+				"security": [],
+				"parameters": []
 			}
 		}
 	},
