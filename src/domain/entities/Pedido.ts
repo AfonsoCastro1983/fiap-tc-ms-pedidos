@@ -25,6 +25,7 @@ export class Pedido implements IPedido {
             (total, item) => total.somar(item.total),
             new Preco(0)
         );
+        console.log('atualizarValorTotal', this._valorTotal);
     }
 
     get id(): string {
@@ -68,21 +69,9 @@ export class Pedido implements IPedido {
     }
 
     adicionarItem(itemAdicionado: IItem, quantidade: number): void {
-        const itemEncontrado = this._itens.find(it => it.item.id == itemAdicionado.id);
-        //Atualizar o item    
-        if (itemEncontrado) {
-            itemEncontrado.alterarQuantidade(quantidade);
-        }
-        else {
-            const novoItem: PedidoItem = new PedidoItem(itemAdicionado, quantidade);
-            this._itens.push(novoItem);
-        }
+        const novoItem: PedidoItem = new PedidoItem(itemAdicionado, quantidade);
+        this._itens.push(novoItem);
         //Atualizar total
-        this.atualizarValorTotal(this._itens);
-    }
-
-    eliminarItem(idItem: number): void {
-        this._itens = this._itens.filter(item => item.item.id !== idItem );
         this.atualizarValorTotal(this._itens);
     }
 }

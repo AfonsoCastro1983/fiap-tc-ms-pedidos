@@ -1,0 +1,60 @@
+<testExecutions version="1">
+<file path="tests/CadastrarPedidoDto.test.ts">
+<testCase name="CadastrarPedidoDto deve criar uma inst&#xe2;ncia com valores padr&#xe3;o" duration="6" />
+<testCase name="CadastrarPedidoDto deve aceitar valores personalizados na cria&#xe7;&#xe3;o" duration="1" />
+<testCase name="RepositoryPedidoDto deve criar uma inst&#xe2;ncia com valores padr&#xe3;o" duration="1" />
+<testCase name="RepositoryPedidoDto deve aceitar valores personalizados na cria&#xe7;&#xe3;o" duration="1" />
+<testCase name="RepositoryPedidoDto deve calcular corretamente o valor total dos itens" duration="1" />
+<testCase name="RepositoryPedidoDto deve validar a estrutura dos itens" duration="3" />
+<testCase name="RepositoryPedidoDto deve validar a estrutura do cliente" duration="2" />
+</file>
+<file path="tests/dynamoose.test.ts">
+<testCase name="Configura&#xe7;&#xe3;o do Dynamoose deve configurar o Dynamoose corretamente com credenciais v&#xe1;lidas" duration="8" />
+<testCase name="Configura&#xe7;&#xe3;o do Dynamoose deve lan&#xe7;ar um erro se as credenciais n&#xe3;o estiverem configuradas" duration="9" />
+<testCase name="Configura&#xe7;&#xe3;o do Dynamoose deve logar as informa&#xe7;&#xf5;es de configura&#xe7;&#xe3;o corretamente" duration="2" />
+</file>
+<file path="tests/Preco.test.ts">
+<testCase name="Preco Quando o objeto &#xe9; criado Deve lan&#xe7;ar um erro se o valor inicial for negativo" duration="17" />
+<testCase name="Preco Quando o objeto &#xe9; criado Deve criar o objeto corretamente se o valor inicial for positivo" duration="1" />
+<testCase name="Preco Quando somar dois pre&#xe7;os Deve retornar um novo objeto com a soma dos valores" duration="2" />
+<testCase name="Preco Quando subtrair dois pre&#xe7;os Deve retornar um novo objeto com o valor restante" duration="1" />
+<testCase name="Preco Quando subtrair dois pre&#xe7;os Deve lan&#xe7;ar um erro se o valor a subtrair for maior que o atual" duration="1" />
+<testCase name="Preco Quando chamar o m&#xe9;todo toString Deve retornar uma string formatada corretamente" duration="1" />
+</file>
+<file path="tests/Quantidade.test.ts">
+<testCase name="Quantidade deve criar uma inst&#xe2;ncia de Quantidade com valor v&#xe1;lido" duration="11" />
+<testCase name="Quantidade deve lan&#xe7;ar erro ao tentar criar uma Quantidade com valor menor ou igual a zero" duration="13" />
+<testCase name="Quantidade deve alterar a quantidade para um valor v&#xe1;lido" duration="1" />
+<testCase name="Quantidade deve lan&#xe7;ar erro ao tentar alterar a quantidade para um valor menor ou igual a zero" duration="4" />
+<testCase name="Quantidade deve retornar o valor correto da quantidade" duration="0" />
+</file>
+<file path="tests/filaSQS.test.ts">
+<testCase name="filaSQS Receber de uma fila deve retornar mensagens recebidas corretamente" duration="12" />
+<testCase name="filaSQS Receber de uma fila deve retornar um array vazio se n&#xe3;o houver mensagens" duration="0" />
+<testCase name="filaSQS Receber de uma fila deve capturar e logar erros" duration="3" />
+<testCase name="filaSQS Marcar mensagem como lida deve retornar true ao marcar uma mensagem como lida com sucesso" duration="2" />
+<testCase name="filaSQS Marcar mensagem como lida deve retornar false se ocorrer um erro ao marcar uma mensagem como lida" duration="2" />
+</file>
+<file path="tests/PedidoGateway.test.ts">
+<testCase name="PedidoGateway generateShortId deve gerar um ID curto com o tamanho especificado" duration="7" />
+<testCase name="PedidoGateway Cria&#xe7;&#xe3;o de pedidos deve criar e salvar um pedido com sucesso" duration="24" />
+<testCase name="PedidoGateway Buscar por pedidos deve buscar um pedido pelo ID com sucesso" duration="6" />
+<testCase name="PedidoGateway Buscar por pedidos deve lan&#xe7;ar erro se o pedido n&#xe3;o for encontrado" duration="16" />
+<testCase name="PedidoGateway Atualizar status dos pedidos deve atualizar o status do pedido com sucesso" duration="3" />
+<testCase name="PedidoGateway Atualizar status dos pedidos deve lan&#xe7;ar erro se o pedido n&#xe3;o for encontrado" duration="1" />
+<testCase name="PedidoGateway busca Por Status deve retornar pedidos com o status especificado" duration="2" />
+<testCase name="PedidoGateway busca Por Status deve lan&#xe7;ar erro se o status for inv&#xe1;lido" duration="3" />
+<testCase name="PedidoGateway busca Por Status deve retornar pedidos com o status do M&#xf3;dulo 2" duration="2" />
+</file>
+<file path="tests/PedidoController.test.ts">
+<testCase name="PedidoController Cadastrar Pedido deve cadastrar um pedido com sucesso" duration="14" />
+<testCase name="PedidoController Cadastrar Pedido deve retornar erro quando os dados do pedido forem inv&#xe1;lidos" duration="13" />
+<testCase name="PedidoController Listar Pedidos deve buscar por um pedido espec&#xed;fico" duration="2" />
+<testCase name="PedidoController Listar Pedidos deve buscar por um pedido espec&#xed;fico e n&#xe3;o encontrar" duration="3" />
+<testCase name="PedidoController Listar Pedidos deve listar os pedidos por status" duration="1" />
+<testCase name="PedidoController Listar Pedidos deve listar os pedidos por status" duration="2" />
+<testCase name="PedidoController Listar Pedidos deve listar os pedidos por status da cozinha (M&#xf3;dulo2)" duration="1" />
+<testCase name="PedidoController Atualizar status atualizar o status de um pedido" duration="1" />
+<testCase name="PedidoController Processar Mensagens deve processar mensagens com sucesso" duration="2" />
+</file>
+</testExecutions>

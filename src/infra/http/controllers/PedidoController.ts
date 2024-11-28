@@ -6,6 +6,10 @@ import { IPedido } from "../../../application/interfaces/IPedido";
 import { PedidoGateway } from "../../database/gateways/PedidoGateway";
 import { ICliente } from "../../../application/interfaces/ICliente";
 import { IItem } from "../../../application/interfaces/IItem";
+import { ProcessarMensagensFilaUseCase } from "../../../application/usecases/ProcessarMensagensUseCase";
+import { filaSQS } from "../../sqs/sqs";
+import { IMensagemTransacao } from "../../../application/interfaces/IMensagemTransacaoFila";
+import { IReceberFilaMensageria } from "../../../application/interfaces/IReceberFilaMensageria";
 
 export interface PedidoRequest extends CadastrarPedidoDto {
 }
@@ -15,13 +19,13 @@ export interface PedidoStatusRequest {
     status: String;
 }
 
-interface PedidoResponse {
+export interface PedidoResponse {
     id: String;
     data: Date;
     status: String;
     cliente?: ICliente;
     total: number;
-    pedidoItems: { item: IItem, quantidade: number, total: number }[];
+    itens: { item: IItem, quantidade: number, total: number }[];
 }
 
 interface Pedidos {
@@ -32,15 +36,21 @@ interface Pedidos {
 @Tags("Pedido")
 export default class PedidoController {
     private cadastrarPedidoUseCase: CadastrarPedidoUseCase;
+    private listarPedidoUseCase: ListarPedidosUseCase;
+    private processarMensagensUseCase: ProcessarMensagensFilaUseCase;
 
-    constructor(pedidoGateway: PedidoGateway) {
+    constructor(pedidoGateway: PedidoGateway, filaMensageria: IReceberFilaMensageria) {
         this.cadastrarPedidoUseCase = new CadastrarPedidoUseCase(pedidoGateway);
+        this.listarPedidoUseCase = new ListarPedidosUseCase(pedidoGateway);
+        this.processarMensagensUseCase = new ProcessarMensagensFilaUseCase(filaMensageria, pedidoGateway);
     }
 
     private formataResposta(pedidos: Array<IPedido>) {
         if (!pedidos || pedidos.length === 0) {
             throw new Error("Pedido não encontrado");
         }
+
+        console.log('formataResposta', pedidos);
 
         const pedidosResponse: PedidoResponse[] = pedidos.map(pedido => ({
             id: pedido.id ?? "",
@@ -52,7 +62,7 @@ export default class PedidoController {
                 email: pedido.cliente.email
             },
             total: pedido.valorTotal.valor,
-            pedidoItems: pedido.itens === undefined
+            itens: pedido.itens === undefined
                 ? []
                 : pedido.itens.map(item => ({
                     item: {
@@ -77,8 +87,7 @@ export default class PedidoController {
      */
     @Get("/id/:id")
     public async buscaPorId(@Path() id: string): Promise<Pedidos> {
-        const listaPedidos = new ListarPedidosUseCase();
-        const pedidos = await listaPedidos.buscaPorID(id);
+        const pedidos = await this.listarPedidoUseCase.buscaPorID(id);
 
         console.log('BuscaPorId', pedidos);
 
@@ -105,8 +114,7 @@ export default class PedidoController {
      */
     @Get("listagem/:status")
     public async buscaPorStatus(@Path() status: string): Promise<Pedidos> {
-        const listaPedidos = new ListarPedidosUseCase();
-        const pedidos = await listaPedidos.buscaPorStatus(status);
+        const pedidos = await this.listarPedidoUseCase.buscaPorStatus(status);
 
         const pedidosResponse: PedidoResponse[] = this.formataResposta(pedidos);
 
@@ -119,8 +127,7 @@ export default class PedidoController {
      */
     @Get("/status/")
     public async buscaPorStatusModulo2(): Promise<Pedidos> {
-        const listaPedidos = new ListarPedidosUseCase();
-        const pedidos = await listaPedidos.buscaPorStatusModulo2();
+        const pedidos = await this.listarPedidoUseCase.buscaPorStatusModulo2();
 
         const pedidosResponse: PedidoResponse[] = this.formataResposta(pedidos);
 
@@ -151,7 +158,7 @@ export default class PedidoController {
                 email: pedido.cliente.email
             },
             total: pedido.valorTotal.valor,
-            pedidoItems: pedido.itens === undefined
+            itens: pedido.itens === undefined
                 ? []
                 : pedido.itens.map(item => ({
                     item: {
@@ -177,6 +184,17 @@ export default class PedidoController {
     @Put("/status")
     public async atualizarStatusPedido(@Body() body: PedidoStatusRequest): Promise<boolean> {
         const resposta = await this.cadastrarPedidoUseCase.atualizaPedido(body.id, body.status);
+        return resposta;
+    }
+
+    /**
+     * Atualização pela mensageria
+     * @returns
+     * Lista de mensagens a processar
+     */
+    @Get("/atualizastatus")
+    public async atualizarStatusMensageria(): Promise<IMensagemTransacao[]> {
+        const resposta = await this.processarMensagensUseCase.executar();
         return resposta;
     }
 }

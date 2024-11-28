@@ -15,6 +15,11 @@ const PedidoSchema = new dynamoose.Schema(
       type: String,
       enum: Object.values(StatusPedido),
       required: true,
+      index: {
+        name: "StatusIndex",
+        type: "global",
+        rangeKey: "data"
+      }
     },
     cliente: {
       type: Object,

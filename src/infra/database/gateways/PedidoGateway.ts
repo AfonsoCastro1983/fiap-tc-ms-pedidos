@@ -2,10 +2,10 @@ import { IPedidoGateway } from "../../../application/interfaces/IPedidoGateway";
 import { IPedido } from "../../../application/interfaces/IPedido";
 import PedidoModel from "../repositories/Pedido";
 import { StatusPedido } from "../../../shared/enums/StatusPedido";
-import { ListarPedidosUseCase } from "../../../application/usecases/ListarPedidoUseCase";
-import { Preco } from "../../../shared/valueobjects/Preco";
 import { PedidoMapper } from "../mappers/PedidoMapper";
 import { Pedido } from "../../../domain/entities/Pedido";
+import { AnyItem } from "dynamoose/dist/Item";
+import { QueryResponse } from "dynamoose/dist/ItemRetriever";
 
 export class PedidoGateway implements IPedidoGateway {
     private generateShortId(length: number = 12): string {
@@ -24,6 +24,51 @@ export class PedidoGateway implements IPedidoGateway {
         }
 
         return result;
+    }
+
+    private async converteEmIPedido(repository: AnyItem): Promise<IPedido> {
+        const pedido = new Pedido();
+        if (repository.cliente) {
+            pedido.cliente = {
+                id: repository.cliente.id,
+                nome: repository.cliente.nome,
+                email: repository.cliente.email,
+            }
+        }
+        pedido.data = repository.data;
+        pedido.id = repository.id;
+        pedido.atualizarStatus(repository.status);
+        console.log('Array itens', repository.itens);
+
+        if (repository.itens && Array.isArray(repository.itens)) {
+            for (const item of repository.itens) {
+                console.log('Iteração', item);
+                pedido.adicionarItem(
+                    {
+                        id: item.item.id,
+                        nome: item.item.nome,
+                        descricao: item.item.descricao,
+                        ingredientes: item.item.ingredientes,
+                        categoria: item.item.categoria,
+                        preco: item.item.preco,
+                    },
+                    item.quantidade
+                );
+            }
+        }
+
+        return pedido;
+    }
+
+    async converteArrayPedidos(repPedidos: AnyItem[]| QueryResponse<AnyItem>): Promise<IPedido[]> {
+        const pedidos: IPedido[] = [];
+        for (const element of repPedidos) {
+            if (element) {
+                const pedido = await this.converteEmIPedido(element);
+                pedidos.push(pedido);
+            }
+        }
+        return pedidos;
     }
 
     async criarPedido(pedido: IPedido): Promise<IPedido> {
@@ -72,26 +117,20 @@ export class PedidoGateway implements IPedidoGateway {
         return retorno;
     }
 
-    async buscarPedido(pedido: string): Promise<IPedido> {
+    async buscaPedido(pedido: string): Promise<IPedido> {
         console.log("buscarPedido");
-        const pedidos = await new ListarPedidosUseCase().buscaPorID(pedido);
+        const pedidos = await PedidoModel.get({ id: pedido });;
         if (!pedidos) {
-            throw new Error('Erro na pesquisa de pedidos');
-        }
-        if (pedidos.length == 0) {
             throw new Error('Pedido não encontrado');
         }
-        const pedidoRegistrado = pedidos[0];
+        const pedidoRegistrado = this.converteEmIPedido(pedidos);
         console.log('Pedido registrado =>', pedidoRegistrado);
 
         return pedidoRegistrado;
     }
 
     async atualizaStatusPedido(pedido: string, novo_status: StatusPedido): Promise<IPedido> {
-        let pedidoRegistrado = await this.buscarPedido(pedido);
-        if (!pedidoRegistrado) {
-            throw new Error('Pedido não encontrado');
-        }
+        let pedidoRegistrado = await this.buscaPedido(pedido);
 
         console.log('AtualizaPedido(', pedido, ',', novo_status, ')');
 
@@ -99,5 +138,25 @@ export class PedidoGateway implements IPedidoGateway {
 
         pedidoRegistrado = await this.criarPedido(pedidoRegistrado);
         return pedidoRegistrado;
+    }
+
+    async buscaPorStatus(status: string): Promise<Array<IPedido>> {
+        const statusValido = StatusPedido[status.toUpperCase() as keyof typeof StatusPedido];
+
+        if (statusValido) {
+            const pedidos = await PedidoModel.query("status").eq(statusValido).using("StatusIndex").exec();
+            return this.converteArrayPedidos(pedidos);
+            
+        }
+        else {
+            throw new Error('Status inválido')
+        }
+    }
+
+    async buscaPorStatusModulo2(): Promise<Array<IPedido>> {
+        const statusValido = [StatusPedido.PRONTO_PARA_ENTREGA, StatusPedido.EM_PREPARACAO, StatusPedido.ENVIADO_PARA_A_COZINHA];
+
+        const pedidos = await PedidoModel.scan("status").in(statusValido).using("StatusIndex").exec();
+        return this.converteArrayPedidos(pedidos);
     }
 }
