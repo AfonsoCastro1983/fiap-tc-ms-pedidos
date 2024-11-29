@@ -1,4 +1,4 @@
-name: 3- MS-PAGAMENTO - Deploy app
+name: 3- MS-PEDIDOS - Deploy app
 
 on:
   push:

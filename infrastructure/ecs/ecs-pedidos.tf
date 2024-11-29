@@ -1,4 +1,4 @@
-#Provedor AWS
+# Provedor AWS
 provider "aws" {
   region = "us-east-2"
 }
@@ -30,10 +30,17 @@ data "aws_internet_gateway" "existing_igw" {
   }
 }
 
-# Security Group para ECS de pedidos
-resource "aws_security_group" "ms_pedidos_ecs_sg" {
-  name        = "ms_pedidos_ecs_sg"
-  description = "Security group for ECS tasks"
+# Reutilizar a tabela de roteamento pública
+data "aws_route_table" "existing_public_route_table" {
+  tags = {
+    Name = "ms_Clientes-ECS-Public-Route-Table"
+  }
+}
+
+# Security Group para ALB de pedidos
+resource "aws_security_group" "ms_pedidos_alb_sg" {
+  name        = "ms_pedidos_alb_sg"
+  description = "Security group for Application Load Balancer"
   vpc_id      = data.aws_vpc.existing_vpc.id
 
   ingress {
@@ -41,6 +48,46 @@ resource "aws_security_group" "ms_pedidos_ecs_sg" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "ms_pedidos-ALB-SG"
+    Application = "FIAP-TechChallenge"
+  }
+}
+
+# Security Group para ECS de pedidos
+resource "aws_security_group" "ms_pedidos_ecs_sg" {
+  name        = "ms_pedidos_ecs_sg"
+  description = "Security group for ECS tasks"
+  vpc_id      = data.aws_vpc.existing_vpc.id
+
+  ingress {
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ms_pedidos_alb_sg.id]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port       = 32768
+    to_port         = 65535
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ms_pedidos_alb_sg.id]
   }
 
   egress {
@@ -64,6 +111,59 @@ resource "aws_cloudwatch_log_group" "ms_pedidos_logs" {
   tags = {
     Application = "FIAP-TechChallenge"
     Name        = "ms_pedidos-Logs"
+  }
+}
+
+# Load Balancer para pedidos
+resource "aws_lb" "ms_pedidos_ecs_lb" {
+  name               = "ms-pedidos-ecs-lb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.ms_pedidos_alb_sg.id]
+  subnets            = [
+    data.aws_subnet.public_subnet_1.id,
+    data.aws_subnet.public_subnet_2.id
+  ]
+
+  tags = {
+    Name        = "ms_pedidos_ecs_lb"
+    Application = "FIAP-TechChallenge"
+  }
+}
+
+# Listener do Load Balancer
+resource "aws_lb_listener" "ms_pedidos_ecs_lb_listener" {
+  load_balancer_arn = aws_lb.ms_pedidos_ecs_lb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ms_pedidos_ecs_target_group.arn
+  }
+}
+
+# Target Group
+resource "aws_lb_target_group" "ms_pedidos_ecs_target_group" {
+  name        = "ms-pedidos-ecs-tg"
+  port        = 8000
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.existing_vpc.id
+  target_type = "ip"
+
+  health_check {
+    path                = "/"
+    port                = "traffic-port"
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    timeout             = 10
+    interval            = 30
+    matcher             = "200-299"
+  }
+
+  tags = {
+    Name        = "ms_pedidos_ecs_target_group"
+    Application = "FIAP-TechChallenge"
   }
 }
 
@@ -105,32 +205,6 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-resource "aws_iam_policy" "dynamodb_access_policy" {
-  name        = "DynamoDBAccessPolicy"
-  description = "Policy granting access to the DynamoDB table for ECS tasks"
-  policy      = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "dynamodb:GetItem",
-          "dynamodb:PutItem",
-          "dynamodb:Query",
-          "dynamodb:Scan",
-          "dynamodb:UpdateItem"
-        ]
-        Resource = "arn:aws:dynamodb:us-east-2:992382363343:table/mspedido"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "dynamodb_policy_attachment" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = aws_iam_policy.dynamodb_access_policy.arn
-}
-
 # ECS Task Definition
 resource "aws_ecs_task_definition" "ms_pedidos_task" {
   family                   = "ms_pedidos-task"
@@ -142,7 +216,7 @@ resource "aws_ecs_task_definition" "ms_pedidos_task" {
 
   container_definitions = jsonencode([{
     name      = "fiap-mspedidos-app"
-    image     = "992382363343.dkr.ecr.us-east-2.amazonaws.com/ms-pedido:latest"
+    image     = "992382363343.dkr.ecr.us-east-2.amazonaws.com/ms-pedidos:latest"
     essential = true
     
     portMappings = [{
@@ -155,6 +229,14 @@ resource "aws_ecs_task_definition" "ms_pedidos_task" {
       {
         name  = "DYNAMODB_TABLE_NAME"
         value = "mspedido"
+      },
+      {
+        name  = "AWS_ACCESS_KEY_ID"
+        value = var.aws_acces_key
+      },
+      {
+        name  = "AWS_SECRET_ACCESS_KEY"
+        value = var.aws_secret_access_key
       }
     ]
 
@@ -186,6 +268,21 @@ resource "aws_ecs_service" "ms_pedidos_service" {
     subnets          = [data.aws_subnet.public_subnet_1.id, data.aws_subnet.public_subnet_2.id]
     security_groups  = [aws_security_group.ms_pedidos_ecs_sg.id]
     assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ms_pedidos_ecs_target_group.arn
+    container_name   = "fiap-mspedidos-app"
+    container_port   = 8000
+  }
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
+  deployment_controller {
+    type = "ECS"
   }
 
   tags = {
