@@ -1,6 +1,6 @@
 export interface ICliente {
     id: number,
-    nome: String,
-    email: String,
-    cpf: String
+    nome: string,
+    email: string,
+    cpf: string
 }

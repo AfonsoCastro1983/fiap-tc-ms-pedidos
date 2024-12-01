@@ -1,6 +1,5 @@
 import express from "express";
 import PedidoController from "../controllers/PedidoController";
-import { ValidarClienteUseCase } from "../../../application/usecases/ValidarClienteUseCase";
 import { PedidoGateway } from "../../database/gateways/PedidoGateway";
 import { FilaSQS } from "../../sqs/sqs";
 import { ValidarClienteController } from "../controllers/ValidaClienteController";
