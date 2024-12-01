@@ -16,7 +16,8 @@ describe('CadastrarPedidoDto', () => {
         const cliente: ICliente = {
             id: 1,
             nome: 'João',
-            email: 'joao@email.com'
+            email: 'joao@email.com',
+            cpf: ''
         };
 
         const itens = [
@@ -66,7 +67,8 @@ describe('RepositoryPedidoDto', () => {
         const cliente: ICliente = {
             id: 1,
             nome: 'Maria',
-            email: 'maria@email.com'
+            email: 'maria@email.com',
+            cpf: ''
         };
 
         const itens = [
@@ -167,7 +169,8 @@ describe('RepositoryPedidoDto', () => {
         const cliente: ICliente = {
             id: 1,
             nome: 'José',
-            email: 'jose@email.com'
+            email: 'jose@email.com',
+            cpf: '',
         };
 
         dto.cliente = cliente;

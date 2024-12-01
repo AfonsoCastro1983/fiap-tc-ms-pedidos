@@ -1,5 +1,5 @@
 import { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } from "@aws-sdk/client-sqs";
-import { filaSQS } from "../src/infra/sqs/sqs";
+import { FilaSQS } from "../src/infra/sqs/sqs";
 
 // Mockando o SQSClient
 jest.mock("@aws-sdk/client-sqs");
@@ -7,14 +7,14 @@ jest.mock("@aws-sdk/client-sqs");
 const mockedSQSClient = SQSClient as jest.MockedClass<typeof SQSClient>;
 
 describe("filaSQS", () => {
-    let fila: filaSQS;
+    let fila: FilaSQS;
     let sendMock: jest.Mock;
 
     beforeEach(() => {
         // Limpa o mock antes de cada teste
         mockedSQSClient.prototype.send = jest.fn();
         sendMock = mockedSQSClient.prototype.send as jest.Mock;
-        fila = new filaSQS();
+        fila = new FilaSQS();
     });
 
     describe("Receber de uma fila", () => {

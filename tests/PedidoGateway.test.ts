@@ -1,10 +1,6 @@
 import { PedidoGateway } from "../src/infra/database/gateways/PedidoGateway";
 import { StatusPedido } from "../src/shared/enums/StatusPedido";
 import PedidoModel from "../src/infra/database/repositories/Pedido";
-import { PedidoMapper } from "../src/infra/database/mappers/PedidoMapper";
-import { IPedido } from "../src/application/interfaces/IPedido";
-import { Quantidade } from "../src/shared/valueobjects/Quantidade";
-import { Preco } from "../src/shared/valueobjects/Preco";
 import { PedidoResponse, PedidoRequest } from "../src/infra/http/controllers/PedidoController";
 import { Pedido } from "../src/domain/entities/Pedido";
 import { RepositoryPedidoDto } from "../src/domain/dtos/CadastrarPedidoDto";
@@ -17,6 +13,7 @@ const pedidoRequest: PedidoRequest = {
         id: 1,
         nome: 'Cliente Teste',
         email: 'cliente@teste.com',
+        cpf: ''
     },
     itens: [
         {
@@ -37,11 +34,12 @@ const pedidoRequest: PedidoRequest = {
 const pedidoResponse: PedidoResponse = {
     id: 'pedido123',
     data: new Date(),
-    total: 100,
+    valorTotal: 100,
     cliente: {
         id: 1,
         nome: 'Cliente Teste',
         email: 'cliente@teste.com',
+        cpf: ''
     },
     itens: [
         {
@@ -61,7 +59,7 @@ const pedidoResponse: PedidoResponse = {
 };
 
 
-describe("PedidoGateway", () => {
+describe("Gateway de gravação de pedidos", () => {
     let pedidoGatewayMock: PedidoGateway;
 
     beforeEach(() => {
@@ -75,14 +73,15 @@ describe("PedidoGateway", () => {
         });
     });
 
-    describe("Criação de pedidos", () => {
-        it("deve criar e salvar um pedido com sucesso", async () => {
+    describe("Cenário: Criar e salvar um pedido com sucesso", () => {
+        it("DADO um pedido válido, QUANDO eu criá-lo, ENTÃO o pedido deve ser salvo com sucesso", async () => {
             const pedidoTeste = new Pedido();
             pedidoTeste.id = 'pedido123';
             pedidoTeste.cliente = {
                 id: pedidoRequest.cliente!.id,
                 nome: pedidoRequest.cliente!.nome,
                 email: pedidoRequest.cliente!.email,
+                cpf: pedidoRequest.cliente!.cpf
             }
             pedidoTeste.adicionarItem(pedidoRequest.itens![0].item, pedidoRequest.itens![0].quantidade);
             pedidoResponse.data = pedidoTeste.data;
@@ -97,8 +96,8 @@ describe("PedidoGateway", () => {
         });
     });
 
-    describe("Buscar por pedidos", () => {
-        it("deve buscar um pedido pelo ID com sucesso", async () => {
+    describe("Cenário: Buscar um pedido pelo ID com sucesso", () => {
+        it("DADO um ID de pedido válido, QUANDO eu buscar o pedido, ENTÃO os dados do pedido devem ser retornados", async () => {
             const pedidoMock: RepositoryPedidoDto = {
                 id: "pedido123",
                 data: new Date(),
@@ -114,8 +113,10 @@ describe("PedidoGateway", () => {
             expect(PedidoModel.get).toHaveBeenCalledWith({ id: "pedido123" });
             expect(resultado.id).toEqual(pedidoMock.id);
         });
+    });
 
-        it("deve lançar erro se o pedido não for encontrado", async () => {
+    describe("Cenário: Lançar erro ao buscar um pedido inexistente", () => {
+        it("DADO um ID de pedido inexistente, QUANDO eu buscar o pedido, ENTÃO deve lançar um erro informando 'Pedido não encontrado'", async () => {
             PedidoModel.get = jest.fn().mockResolvedValue(null);
 
             await expect(pedidoGatewayMock.buscaPedido("pedidoInvalido")).rejects.toThrow(
@@ -124,14 +125,15 @@ describe("PedidoGateway", () => {
         });
     });
 
-    describe("Atualizar status dos pedidos", () => {
-        it("deve atualizar o status do pedido com sucesso", async () => {
+    describe("Cenário: Atualizar o status de um pedido com sucesso", () => {
+        it("DADO um ID de pedido válido e um novo status, QUANDO eu atualizar o status do pedido, ENTÃO o status deve ser atualizado com sucesso", async () => {
             const pedidoTeste = new Pedido();
             pedidoTeste.id = 'pedido123';
             pedidoTeste.cliente = {
                 id: pedidoRequest.cliente!.id,
                 nome: pedidoRequest.cliente!.nome,
                 email: pedidoRequest.cliente!.email,
+                cpf: pedidoRequest.cliente!.cpf
             }
             pedidoTeste.adicionarItem(pedidoRequest.itens![0].item, pedidoRequest.itens![0].quantidade);
 
@@ -142,6 +144,7 @@ describe("PedidoGateway", () => {
                 id: pedidoRequest.cliente!.id,
                 nome: pedidoRequest.cliente!.nome,
                 email: pedidoRequest.cliente!.email,
+                cpf: pedidoRequest.cliente!.cpf
             }
             pedidoMudado.adicionarItem(pedidoRequest.itens![0].item, pedidoRequest.itens![0].quantidade);
             pedidoMudado.atualizarStatus(StatusPedido.PRONTO_PARA_ENTREGA)
@@ -160,15 +163,16 @@ describe("PedidoGateway", () => {
             );
             expect(resultado.status).toEqual(StatusPedido.PRONTO_PARA_ENTREGA);
         });
+    });
 
-        it("deve lançar erro se o pedido não for encontrado", async () => {
-
-            expect(pedidoGatewayMock.atualizaStatusPedido("pedido123",StatusPedido.PRONTO_PARA_ENTREGA)).rejects.toThrow("Pedido não encontrado");
+    describe("Cenário: Lançar erro ao tentar atualizar o status de um pedido inexistente", () => {
+        it("DADO um ID de pedido inexistente, QUANDO eu tentar atualizar o status do pedido, ENTÃO deve lançar um erro informando 'Pedido não encontrado'", async () => {
+            expect(pedidoGatewayMock.atualizaStatusPedido("pedido123", StatusPedido.PRONTO_PARA_ENTREGA)).rejects.toThrow("Pedido não encontrado");
         });
     });
 
-    describe("busca Por Status", () => {
-        it("deve retornar pedidos com o status especificado", async () => {
+    describe("Cenário: Buscar pedidos por status com sucesso", () => {
+        it("DADO um status válido, QUANDO eu buscar pedidos por esse status, ENTÃO deve retornar os pedidos correspondentes", async () => {
             const pedidosMock = [
                 { id: "pedido123", status: StatusPedido.NOVO, data: new Date() },
             ];
@@ -185,14 +189,18 @@ describe("PedidoGateway", () => {
             expect(resultado).toHaveLength(1);
             expect(resultado[0].status).toEqual(StatusPedido.NOVO);
         });
+    });
 
-        it("deve lançar erro se o status for inválido", async () => {
+    describe("Cenário: Lançar erro ao buscar pedidos por status inválido", () => {
+        it("DADO um status inválido, QUANDO eu buscar pedidos por esse status, ENTÃO deve lançar um erro informando 'Status inválido'", async () => {
             await expect(pedidoGatewayMock.buscaPorStatus("INVALIDO")).rejects.toThrow(
                 "Status inválido"
             );
         });
+    });
 
-        it("deve retornar pedidos com o status do Módulo 2", async () => {
+    describe("Cenário: Buscar pedidos com o status do Módulo 2 com sucesso", () => {
+        it("DADO um status do Módulo 2, QUANDO eu buscar pedidos, ENTÃO deve retornar os pedidos correspondentes", async () => {
             const pedidosMock = [
                 { id: "pedido123", status: StatusPedido.ENVIADO_PARA_A_COZINHA, data: new Date() },
             ];

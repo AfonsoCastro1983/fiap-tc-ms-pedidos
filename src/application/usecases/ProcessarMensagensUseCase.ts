@@ -1,14 +1,16 @@
 import { IReceberFilaMensageria } from "../interfaces/IReceberFilaMensageria";
 import { IPedidoGateway } from "../interfaces/IPedidoGateway";
 import { IMensagemTransacao } from "../interfaces/IMensagemTransacaoFila";
+import { CadastrarPedidoUseCase } from "./CadastrarPedidoUseCase";
 
 export class ProcessarMensagensFilaUseCase {
     private _filaMensageria: IReceberFilaMensageria;
-    private _pedidoGateway: IPedidoGateway;
+    private _pedidoUseCase: CadastrarPedidoUseCase;
 
     constructor(filaMensageria: IReceberFilaMensageria, pedidoGateway: IPedidoGateway) {
         this._filaMensageria = filaMensageria;
-        this._pedidoGateway = pedidoGateway;
+        this._pedidoUseCase = new CadastrarPedidoUseCase(pedidoGateway)
+
     }
 
     public async executar(): Promise<IMensagemTransacao[]> {
@@ -19,7 +21,7 @@ export class ProcessarMensagensFilaUseCase {
             console.log("Processando mensagem:", mensagem);
             // Atualiza pedido
             try {
-                await this._pedidoGateway.atualizaStatusPedido(mensagem.pedido, mensagem.status);
+                await this._pedidoUseCase.atualizaPedido(mensagem.pedido, mensagem.status);
             }
             catch (error) {
                 console.log('Processamento mensagem =>',error);

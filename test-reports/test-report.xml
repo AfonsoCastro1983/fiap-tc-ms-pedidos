@@ -1,60 +1,64 @@
 <testExecutions version="1">
-<file path="tests/CadastrarPedidoDto.test.ts">
-<testCase name="CadastrarPedidoDto deve criar uma inst&#xe2;ncia com valores padr&#xe3;o" duration="6" />
-<testCase name="CadastrarPedidoDto deve aceitar valores personalizados na cria&#xe7;&#xe3;o" duration="1" />
-<testCase name="RepositoryPedidoDto deve criar uma inst&#xe2;ncia com valores padr&#xe3;o" duration="1" />
-<testCase name="RepositoryPedidoDto deve aceitar valores personalizados na cria&#xe7;&#xe3;o" duration="1" />
-<testCase name="RepositoryPedidoDto deve calcular corretamente o valor total dos itens" duration="1" />
-<testCase name="RepositoryPedidoDto deve validar a estrutura dos itens" duration="3" />
-<testCase name="RepositoryPedidoDto deve validar a estrutura do cliente" duration="2" />
-</file>
-<file path="tests/dynamoose.test.ts">
-<testCase name="Configura&#xe7;&#xe3;o do Dynamoose deve configurar o Dynamoose corretamente com credenciais v&#xe1;lidas" duration="8" />
-<testCase name="Configura&#xe7;&#xe3;o do Dynamoose deve lan&#xe7;ar um erro se as credenciais n&#xe3;o estiverem configuradas" duration="9" />
-<testCase name="Configura&#xe7;&#xe3;o do Dynamoose deve logar as informa&#xe7;&#xf5;es de configura&#xe7;&#xe3;o corretamente" duration="2" />
-</file>
 <file path="tests/Preco.test.ts">
-<testCase name="Preco Quando o objeto &#xe9; criado Deve lan&#xe7;ar um erro se o valor inicial for negativo" duration="17" />
+<testCase name="Preco Quando o objeto &#xe9; criado Deve lan&#xe7;ar um erro se o valor inicial for negativo" duration="24" />
 <testCase name="Preco Quando o objeto &#xe9; criado Deve criar o objeto corretamente se o valor inicial for positivo" duration="1" />
-<testCase name="Preco Quando somar dois pre&#xe7;os Deve retornar um novo objeto com a soma dos valores" duration="2" />
-<testCase name="Preco Quando subtrair dois pre&#xe7;os Deve retornar um novo objeto com o valor restante" duration="1" />
+<testCase name="Preco Quando somar dois pre&#xe7;os Deve retornar um novo objeto com a soma dos valores" duration="1" />
+<testCase name="Preco Quando subtrair dois pre&#xe7;os Deve retornar um novo objeto com o valor restante" duration="0" />
 <testCase name="Preco Quando subtrair dois pre&#xe7;os Deve lan&#xe7;ar um erro se o valor a subtrair for maior que o atual" duration="1" />
 <testCase name="Preco Quando chamar o m&#xe9;todo toString Deve retornar uma string formatada corretamente" duration="1" />
 </file>
 <file path="tests/Quantidade.test.ts">
-<testCase name="Quantidade deve criar uma inst&#xe2;ncia de Quantidade com valor v&#xe1;lido" duration="11" />
-<testCase name="Quantidade deve lan&#xe7;ar erro ao tentar criar uma Quantidade com valor menor ou igual a zero" duration="13" />
-<testCase name="Quantidade deve alterar a quantidade para um valor v&#xe1;lido" duration="1" />
-<testCase name="Quantidade deve lan&#xe7;ar erro ao tentar alterar a quantidade para um valor menor ou igual a zero" duration="4" />
-<testCase name="Quantidade deve retornar o valor correto da quantidade" duration="0" />
+<testCase name="Quantidade deve criar uma inst&#xe2;ncia de Quantidade com valor v&#xe1;lido" duration="7" />
+<testCase name="Quantidade deve lan&#xe7;ar erro ao tentar criar uma Quantidade com valor menor ou igual a zero" duration="11" />
+<testCase name="Quantidade deve alterar a quantidade para um valor v&#xe1;lido" duration="0" />
+<testCase name="Quantidade deve lan&#xe7;ar erro ao tentar alterar a quantidade para um valor menor ou igual a zero" duration="2" />
+<testCase name="Quantidade deve retornar o valor correto da quantidade" duration="1" />
+</file>
+<file path="tests/ValidarClienteController.test.ts">
+<testCase name="ValidarClienteController Cen&#xe1;rio: Validar um token com sucesso DADO um token v&#xe1;lido, QUANDO eu chamar o m&#xe9;todo validar, ENT&#xc3;O ele deve retornar o cliente" duration="10" />
+<testCase name="ValidarClienteController Cen&#xe1;rio: Retornar cliente zerado ao validar um token ausente DADO uma requisi&#xe7;&#xe3;o sem cabe&#xe7;alho Authorization, QUANDO eu chamar o m&#xe9;todo validar, ENT&#xc3;O ele deve retornar um cliente zerado" duration="6" />
+<testCase name="ValidarClienteController Cen&#xe1;rio: Retornar cliente zerado ao validar um token inv&#xe1;lido DADO um token inv&#xe1;lido, QUANDO eu chamar o m&#xe9;todo validar, ENT&#xc3;O ele deve retornar um cliente zerado" duration="0" />
+</file>
+<file path="tests/dynamoose.test.ts">
+<testCase name="Configura&#xe7;&#xe3;o do Dynamoose deve configurar o Dynamoose corretamente com credenciais v&#xe1;lidas" duration="13" />
+<testCase name="Configura&#xe7;&#xe3;o do Dynamoose deve lan&#xe7;ar um erro se as credenciais n&#xe3;o estiverem configuradas" duration="20" />
+<testCase name="Configura&#xe7;&#xe3;o do Dynamoose deve logar as informa&#xe7;&#xf5;es de configura&#xe7;&#xe3;o corretamente" duration="2" />
 </file>
 <file path="tests/filaSQS.test.ts">
-<testCase name="filaSQS Receber de uma fila deve retornar mensagens recebidas corretamente" duration="12" />
-<testCase name="filaSQS Receber de uma fila deve retornar um array vazio se n&#xe3;o houver mensagens" duration="0" />
+<testCase name="filaSQS Receber de uma fila deve retornar mensagens recebidas corretamente" duration="25" />
+<testCase name="filaSQS Receber de uma fila deve retornar um array vazio se n&#xe3;o houver mensagens" duration="2" />
 <testCase name="filaSQS Receber de uma fila deve capturar e logar erros" duration="3" />
-<testCase name="filaSQS Marcar mensagem como lida deve retornar true ao marcar uma mensagem como lida com sucesso" duration="2" />
+<testCase name="filaSQS Marcar mensagem como lida deve retornar true ao marcar uma mensagem como lida com sucesso" duration="3" />
 <testCase name="filaSQS Marcar mensagem como lida deve retornar false se ocorrer um erro ao marcar uma mensagem como lida" duration="2" />
 </file>
 <file path="tests/PedidoGateway.test.ts">
-<testCase name="PedidoGateway generateShortId deve gerar um ID curto com o tamanho especificado" duration="7" />
-<testCase name="PedidoGateway Cria&#xe7;&#xe3;o de pedidos deve criar e salvar um pedido com sucesso" duration="24" />
-<testCase name="PedidoGateway Buscar por pedidos deve buscar um pedido pelo ID com sucesso" duration="6" />
-<testCase name="PedidoGateway Buscar por pedidos deve lan&#xe7;ar erro se o pedido n&#xe3;o for encontrado" duration="16" />
-<testCase name="PedidoGateway Atualizar status dos pedidos deve atualizar o status do pedido com sucesso" duration="3" />
-<testCase name="PedidoGateway Atualizar status dos pedidos deve lan&#xe7;ar erro se o pedido n&#xe3;o for encontrado" duration="1" />
-<testCase name="PedidoGateway busca Por Status deve retornar pedidos com o status especificado" duration="2" />
-<testCase name="PedidoGateway busca Por Status deve lan&#xe7;ar erro se o status for inv&#xe1;lido" duration="3" />
-<testCase name="PedidoGateway busca Por Status deve retornar pedidos com o status do M&#xf3;dulo 2" duration="2" />
+<testCase name="Gateway de grava&#xe7;&#xe3;o de pedidos generateShortId deve gerar um ID curto com o tamanho especificado" duration="9" />
+<testCase name="Gateway de grava&#xe7;&#xe3;o de pedidos Cen&#xe1;rio: Criar e salvar um pedido com sucesso DADO um pedido v&#xe1;lido, QUANDO eu cri&#xe1;-lo, ENT&#xc3;O o pedido deve ser salvo com sucesso" duration="37" />
+<testCase name="Gateway de grava&#xe7;&#xe3;o de pedidos Cen&#xe1;rio: Buscar um pedido pelo ID com sucesso DADO um ID de pedido v&#xe1;lido, QUANDO eu buscar o pedido, ENT&#xc3;O os dados do pedido devem ser retornados" duration="4" />
+<testCase name="Gateway de grava&#xe7;&#xe3;o de pedidos Cen&#xe1;rio: Lan&#xe7;ar erro ao buscar um pedido inexistente DADO um ID de pedido inexistente, QUANDO eu buscar o pedido, ENT&#xc3;O deve lan&#xe7;ar um erro informando &apos;Pedido n&#xe3;o encontrado&apos;" duration="16" />
+<testCase name="Gateway de grava&#xe7;&#xe3;o de pedidos Cen&#xe1;rio: Atualizar o status de um pedido com sucesso DADO um ID de pedido v&#xe1;lido e um novo status, QUANDO eu atualizar o status do pedido, ENT&#xc3;O o status deve ser atualizado com sucesso" duration="4" />
+<testCase name="Gateway de grava&#xe7;&#xe3;o de pedidos Cen&#xe1;rio: Lan&#xe7;ar erro ao tentar atualizar o status de um pedido inexistente DADO um ID de pedido inexistente, QUANDO eu tentar atualizar o status do pedido, ENT&#xc3;O deve lan&#xe7;ar um erro informando &apos;Pedido n&#xe3;o encontrado&apos;" duration="2" />
+<testCase name="Gateway de grava&#xe7;&#xe3;o de pedidos Cen&#xe1;rio: Buscar pedidos por status com sucesso DADO um status v&#xe1;lido, QUANDO eu buscar pedidos por esse status, ENT&#xc3;O deve retornar os pedidos correspondentes" duration="2" />
+<testCase name="Gateway de grava&#xe7;&#xe3;o de pedidos Cen&#xe1;rio: Lan&#xe7;ar erro ao buscar pedidos por status inv&#xe1;lido DADO um status inv&#xe1;lido, QUANDO eu buscar pedidos por esse status, ENT&#xc3;O deve lan&#xe7;ar um erro informando &apos;Status inv&#xe1;lido&apos;" duration="5" />
+<testCase name="Gateway de grava&#xe7;&#xe3;o de pedidos Cen&#xe1;rio: Buscar pedidos com o status do M&#xf3;dulo 2 com sucesso DADO um status do M&#xf3;dulo 2, QUANDO eu buscar pedidos, ENT&#xc3;O deve retornar os pedidos correspondentes" duration="2" />
 </file>
 <file path="tests/PedidoController.test.ts">
-<testCase name="PedidoController Cadastrar Pedido deve cadastrar um pedido com sucesso" duration="14" />
-<testCase name="PedidoController Cadastrar Pedido deve retornar erro quando os dados do pedido forem inv&#xe1;lidos" duration="13" />
-<testCase name="PedidoController Listar Pedidos deve buscar por um pedido espec&#xed;fico" duration="2" />
-<testCase name="PedidoController Listar Pedidos deve buscar por um pedido espec&#xed;fico e n&#xe3;o encontrar" duration="3" />
-<testCase name="PedidoController Listar Pedidos deve listar os pedidos por status" duration="1" />
-<testCase name="PedidoController Listar Pedidos deve listar os pedidos por status" duration="2" />
-<testCase name="PedidoController Listar Pedidos deve listar os pedidos por status da cozinha (M&#xf3;dulo2)" duration="1" />
-<testCase name="PedidoController Atualizar status atualizar o status de um pedido" duration="1" />
-<testCase name="PedidoController Processar Mensagens deve processar mensagens com sucesso" duration="2" />
+<testCase name="Controlador de Pedidos Cen&#xe1;rio: Cadastrar um pedido com sucesso DADO um pedido v&#xe1;lido, QUANDO eu tentar cadastr&#xe1;-lo, ENT&#xc3;O o pedido deve ser criado com sucesso" duration="28" />
+<testCase name="Controlador de Pedidos Cen&#xe1;rio: Retornar erro ao cadastrar um pedido com dados inv&#xe1;lidos DADO um pedido com dados inv&#xe1;lidos, QUANDO eu tentar cadastr&#xe1;-lo, ENT&#xc3;O deve lan&#xe7;ar um erro informando &apos;Dados inv&#xe1;lidos&apos;" duration="16" />
+<testCase name="Controlador de Pedidos Cen&#xe1;rio: Buscar um pedido espec&#xed;fico com sucesso DADO um identificador de pedido v&#xe1;lido, QUANDO eu buscar o pedido, ENT&#xc3;O os dados do pedido devem ser retornados" duration="5" />
+<testCase name="Controlador de Pedidos Cen&#xe1;rio: Retornar erro ao buscar um pedido inexistente DADO um identificador de pedido inexistente, QUANDO eu buscar o pedido, ENT&#xc3;O deve lan&#xe7;ar um erro informando &apos;Pedido n&#xe3;o encontrado&apos;" duration="1" />
+<testCase name="Controlador de Pedidos Cen&#xe1;rio: Listar pedidos por status com sucesso DADO um status v&#xe1;lido, QUANDO eu listar os pedidos, ENT&#xc3;O deve retornar a lista de pedidos correspondentes" duration="3" />
+<testCase name="Controlador de Pedidos Cen&#xe1;rio: Retornar erro ao listar pedidos por status inv&#xe1;lido DADO um status inv&#xe1;lido, QUANDO eu listar os pedidos, ENT&#xc3;O deve lan&#xe7;ar um erro informando &apos;Status inv&#xe1;lido&apos;" duration="1" />
+<testCase name="Controlador de Pedidos Cen&#xe1;rio: Listar pedidos por status do m&#xf3;dulo da cozinha com sucesso DADO um status do m&#xf3;dulo da cozinha, QUANDO eu listar os pedidos, ENT&#xc3;O deve retornar a lista de pedidos correspondentes" duration="2" />
+<testCase name="Controlador de Pedidos Cen&#xe1;rio: Processar mensagens de atualiza&#xe7;&#xe3;o de status com sucesso DADO mensagens recebidas de uma fila, QUANDO eu process&#xe1;-las, ENT&#xc3;O o status dos pedidos deve ser atualizado e as mensagens marcadas como lidas" duration="8" />
+</file>
+<file path="tests/CadastrarPedidoDto.test.ts">
+<testCase name="CadastrarPedidoDto deve criar uma inst&#xe2;ncia com valores padr&#xe3;o" duration="4" />
+<testCase name="CadastrarPedidoDto deve aceitar valores personalizados na cria&#xe7;&#xe3;o" duration="1" />
+<testCase name="RepositoryPedidoDto deve criar uma inst&#xe2;ncia com valores padr&#xe3;o" duration="0" />
+<testCase name="RepositoryPedidoDto deve aceitar valores personalizados na cria&#xe7;&#xe3;o" duration="1" />
+<testCase name="RepositoryPedidoDto deve calcular corretamente o valor total dos itens" duration="0" />
+<testCase name="RepositoryPedidoDto deve validar a estrutura dos itens" duration="2" />
+<testCase name="RepositoryPedidoDto deve validar a estrutura do cliente" duration="0" />
 </file>
 </testExecutions>

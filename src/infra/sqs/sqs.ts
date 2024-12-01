@@ -2,7 +2,7 @@ import { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } from "@aws-sdk
 import { IReceberFilaMensageria } from "../../application/interfaces/IReceberFilaMensageria";
 import { IMensagemTransacao } from "../../application/interfaces/IMensagemTransacaoFila";
 
-export class filaSQS implements IReceberFilaMensageria {
+export class FilaSQS implements IReceberFilaMensageria {
     private _sqsClient: SQSClient;
     private _queueURL: string = 'https://sqs.us-east-2.amazonaws.com/992382363343/lanchonete-fiap-status-pedido.fifo';
 

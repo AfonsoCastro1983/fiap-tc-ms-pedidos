@@ -17,14 +17,15 @@ export class CadastrarPedidoUseCase {
             pedido.cliente = {
                 id: dto.cliente.id,
                 nome: dto.cliente.nome,
-                email: dto.cliente.email
+                email: dto.cliente.email,
+                cpf: dto.cliente.cpf,
             }
         }
         if (dto.id) {
             pedido.id = dto.id;
         }
         pedido.atualizarStatus(dto.status);
-        if (!dto.itens) {
+        if ((!dto.itens) || (dto.itens.length == 0)) {
             throw new Error('Pedido sem itens');
         }
 

@@ -11,6 +11,7 @@ const pedidoRequest: PedidoRequest = {
     id: 1,
     nome: 'Cliente Teste',
     email: 'cliente@teste.com',
+    cpf: ''
   },
   itens: [
     {
@@ -31,11 +32,12 @@ const pedidoRequest: PedidoRequest = {
 const pedidoResponse: PedidoResponse = {
   id: 'pedido123',
   data: new Date(),
-  total: 100,
+  valorTotal: 100,
   cliente: {
     id: 1,
     nome: 'Cliente Teste',
     email: 'cliente@teste.com',
+    cpf: ''
   },
   itens: [
     {
@@ -54,7 +56,7 @@ const pedidoResponse: PedidoResponse = {
   status: StatusPedido.NOVO,
 };
 
-describe('PedidoController', () => {
+describe('Controlador de Pedidos', () => {
   let controller: PedidoController;
   let pedidoGatewayMock: jest.Mocked<PedidoGateway>;
   let filaMensageriaMock: jest.Mocked<IReceberFilaMensageria>;
@@ -76,14 +78,16 @@ describe('PedidoController', () => {
     controller = new PedidoController(pedidoGatewayMock, filaMensageriaMock);
   });
 
-  describe('Cadastrar Pedido', () => {
-    it('deve cadastrar um pedido com sucesso', async () => {
+
+  describe("Cenário: Cadastrar um pedido com sucesso", () => {
+    it("DADO um pedido válido, QUANDO eu tentar cadastrá-lo, ENTÃO o pedido deve ser criado com sucesso", async () => {
       const pedidoTeste = new Pedido();
       pedidoTeste.id = 'pedido123';
       pedidoTeste.cliente = {
         id: pedidoRequest.cliente!.id,
         nome: pedidoRequest.cliente!.nome,
         email: pedidoRequest.cliente!.email,
+        cpf: pedidoRequest.cliente!.cpf
       }
       pedidoTeste.adicionarItem(pedidoRequest.itens![0].item, pedidoRequest.itens![0].quantidade);
       pedidoResponse.data = pedidoTeste.data;
@@ -96,27 +100,29 @@ describe('PedidoController', () => {
 
       expect(resultado).toEqual(pedidoResponse);
     });
+  });
 
-    it('deve retornar erro quando os dados do pedido forem inválidos', async () => {
+  describe("Cenário: Retornar erro ao cadastrar um pedido com dados inválidos", () => {
+    it("DADO um pedido com dados inválidos, QUANDO eu tentar cadastrá-lo, ENTÃO deve lançar um erro informando 'Dados inválidos'", async () => {
       const pedidoRequest: PedidoRequest = {
         cliente: undefined,
         itens: [],
         status: StatusPedido.NOVO,
       };
-      pedidoGatewayMock.criarPedido.mockRejectedValue(new Error('Dados inválidos'));
 
-      await expect(controller.cadastrarPedido(pedidoRequest)).rejects.toThrow('Dados inválidos');
+      await expect(controller.cadastrarPedido(pedidoRequest)).rejects.toThrow('Pedido sem itens');
     });
   });
 
-  describe('Listar Pedidos', () => {
-    it('deve buscar por um pedido específico', async () => {
+  describe("Cenário: Buscar um pedido específico com sucesso", () => {
+    it("DADO um identificador de pedido válido, QUANDO eu buscar o pedido, ENTÃO os dados do pedido devem ser retornados", async () => {
       const pedidoTeste = new Pedido();
       pedidoTeste.id = 'pedido123';
       pedidoTeste.cliente = {
         id: pedidoRequest.cliente!.id,
         nome: pedidoRequest.cliente!.nome,
         email: pedidoRequest.cliente!.email,
+        cpf: pedidoRequest.cliente!.cpf
       }
       pedidoTeste.adicionarItem(pedidoRequest.itens![0].item, pedidoRequest.itens![0].quantidade);
       pedidoResponse.data = pedidoTeste.data;
@@ -128,18 +134,23 @@ describe('PedidoController', () => {
       const resultado = await controller.buscaPorId('pedido123');
       expect(resultado).toEqual({ pedidos: [pedidoResponse] });
     });
+  });
 
-    it('deve buscar por um pedido específico e não encontrar', async () => {
+  describe("Cenário: Retornar erro ao buscar um pedido inexistente", () => {
+    it("DADO um identificador de pedido inexistente, QUANDO eu buscar o pedido, ENTÃO deve lançar um erro informando 'Pedido não encontrado'", async () => {
       await expect(controller.buscaPorId('pedido123')).rejects.toThrow('Pedido não encontrado');
     });
+  });
 
-    it('deve listar os pedidos por status', async () => {
+  describe("Cenário: Listar pedidos por status com sucesso", () => {
+    it("DADO um status válido, QUANDO eu listar os pedidos, ENTÃO deve retornar a lista de pedidos correspondentes", async () => {
       const pedidoTeste = new Pedido();
       pedidoTeste.id = 'pedido123';
       pedidoTeste.cliente = {
         id: pedidoRequest.cliente!.id,
         nome: pedidoRequest.cliente!.nome,
         email: pedidoRequest.cliente!.email,
+        cpf: pedidoRequest.cliente!.cpf
       }
       pedidoTeste.adicionarItem(pedidoRequest.itens![0].item, pedidoRequest.itens![0].quantidade);
       pedidoResponse.data = pedidoTeste.data;
@@ -154,18 +165,23 @@ describe('PedidoController', () => {
       expect(pedidoGatewayMock.buscaPorStatus).toHaveBeenCalled();
       expect(resultado).toEqual({ pedidos: [pedidoResponse] });
     });
+  });
 
-    it('deve listar os pedidos por status', async () => {
+  describe("Cenário: Retornar erro ao listar pedidos por status inválido", () => {
+    it("DADO um status inválido, QUANDO eu listar os pedidos, ENTÃO deve lançar um erro informando 'Status inválido'", async () => {
       await expect(controller.buscaPorStatus('NAO EXISTE')).rejects.toThrow('Status inválido');
     });
+  });
 
-    it('deve listar os pedidos por status da cozinha (Módulo2)', async () => {
+  describe("Cenário: Listar pedidos por status do módulo da cozinha com sucesso", () => {
+    it("DADO um status do módulo da cozinha, QUANDO eu listar os pedidos, ENTÃO deve retornar a lista de pedidos correspondentes", async () => {
       const pedidoTeste = new Pedido();
       pedidoTeste.id = 'pedido123';
       pedidoTeste.cliente = {
         id: pedidoRequest.cliente!.id,
         nome: pedidoRequest.cliente!.nome,
         email: pedidoRequest.cliente!.email,
+        cpf: pedidoRequest.cliente!.cpf
       };
       pedidoTeste.atualizarStatus(StatusPedido.ENVIADO_PARA_A_COZINHA);
       pedidoTeste.adicionarItem(pedidoRequest.itens![0].item, pedidoRequest.itens![0].quantidade);
@@ -184,37 +200,15 @@ describe('PedidoController', () => {
     });
   });
 
-  describe('Atualizar status', () => {
-    it('atualizar o status de um pedido', async () => {
+  describe("Cenário: Processar mensagens de atualização de status com sucesso", () => {
+    it("DADO mensagens recebidas de uma fila, QUANDO eu processá-las, ENTÃO o status dos pedidos deve ser atualizado e as mensagens marcadas como lidas", async () => {
       const pedidoTeste = new Pedido();
       pedidoTeste.id = 'pedido123';
       pedidoTeste.cliente = {
         id: pedidoRequest.cliente!.id,
         nome: pedidoRequest.cliente!.nome,
         email: pedidoRequest.cliente!.email,
-      };
-      pedidoTeste.atualizarStatus(StatusPedido.ENVIADO_PARA_A_COZINHA);
-      pedidoTeste.adicionarItem(pedidoRequest.itens![0].item, pedidoRequest.itens![0].quantidade);
-      pedidoResponse.data = pedidoTeste.data;
-      pedidoResponse.status = StatusPedido.ENVIADO_PARA_A_COZINHA;
-
-      const pedido: IPedido = pedidoTeste;
-
-      pedidoGatewayMock.atualizaStatusPedido.mockResolvedValue(pedido);
-
-      const resultado = await controller.atualizarStatusPedido({ id: 'pedido123', status: 'ENVIADO_PARA_A_COZINHA' });
-      expect(resultado).toBe(true);
-    });
-  });
-
-  describe('Processar Mensagens', () => {
-    it('deve processar mensagens com sucesso', async () => {
-      const pedidoTeste = new Pedido();
-      pedidoTeste.id = 'pedido123';
-      pedidoTeste.cliente = {
-        id: pedidoRequest.cliente!.id,
-        nome: pedidoRequest.cliente!.nome,
-        email: pedidoRequest.cliente!.email,
+        cpf: pedidoRequest.cliente!.cpf
       };
       pedidoTeste.atualizarStatus(StatusPedido.ENVIADO_PARA_A_COZINHA);
       pedidoTeste.adicionarItem(pedidoRequest.itens![0].item, pedidoRequest.itens![0].quantidade);

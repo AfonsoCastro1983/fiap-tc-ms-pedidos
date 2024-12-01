@@ -33,6 +33,7 @@ export class PedidoGateway implements IPedidoGateway {
                 id: repository.cliente.id,
                 nome: repository.cliente.nome,
                 email: repository.cliente.email,
+                cpf: repository.cliente.cpf
             }
         }
         pedido.data = repository.data;
@@ -81,7 +82,8 @@ export class PedidoGateway implements IPedidoGateway {
             pdd.cliente = {
                 id: pedido.cliente.id,
                 nome: pedido.cliente.nome,
-                email: pedido.cliente.email
+                email: pedido.cliente.email,
+                cpf: pedido.cliente.cpf
             }
         }
         pedido.itens.forEach(element => {
