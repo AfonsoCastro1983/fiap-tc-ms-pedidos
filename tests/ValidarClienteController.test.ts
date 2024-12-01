@@ -24,7 +24,7 @@ describe('ValidarClienteController', () => {
       } as Request;
 
       mockedAxios.get.mockResolvedValue({
-        data: { id: 1, nome: 'Teste', idcognito: '81ebc5c0-10e1-70e1-deb7-e7471505fe3e' },
+        data: {cliente: { id: 1, nome: 'Teste', idcognito: '81ebc5c0-10e1-70e1-deb7-e7471505fe3e' }},
       });
 
       const resultado = await validarClienteController.validar(mockRequest);
