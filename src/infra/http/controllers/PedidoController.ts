@@ -7,7 +7,6 @@ import { PedidoGateway } from "../../database/gateways/PedidoGateway";
 import { ICliente } from "../../../application/interfaces/ICliente";
 import { IItem } from "../../../application/interfaces/IItem";
 import { ProcessarMensagensFilaUseCase } from "../../../application/usecases/ProcessarMensagensUseCase";
-import { filaSQS } from "../../sqs/sqs";
 import { IMensagemTransacao } from "../../../application/interfaces/IMensagemTransacaoFila";
 import { IReceberFilaMensageria } from "../../../application/interfaces/IReceberFilaMensageria";
 
@@ -24,7 +23,7 @@ export interface PedidoResponse {
     data: Date;
     status: String;
     cliente?: ICliente;
-    total: number;
+    valorTotal: number;
     itens: { item: IItem, quantidade: number, total: number }[];
 }
 
@@ -59,9 +58,10 @@ export default class PedidoController {
             cliente: !pedido.cliente ? undefined : {
                 id: pedido.cliente.id,
                 nome: pedido.cliente.nome,
-                email: pedido.cliente.email
+                email: pedido.cliente.email,
+                cpf: pedido.cliente.cpf
             },
-            total: pedido.valorTotal.valor,
+            valorTotal: pedido.valorTotal.valor,
             itens: pedido.itens === undefined
                 ? []
                 : pedido.itens.map(item => ({
@@ -155,9 +155,10 @@ export default class PedidoController {
             cliente: !pedido.cliente ? undefined : {
                 id: pedido.cliente.id,
                 nome: pedido.cliente.nome,
-                email: pedido.cliente.email
+                email: pedido.cliente.email,
+                cpf: pedido.cliente.cpf
             },
-            total: pedido.valorTotal.valor,
+            valorTotal: pedido.valorTotal.valor,
             itens: pedido.itens === undefined
                 ? []
                 : pedido.itens.map(item => ({
@@ -176,17 +177,7 @@ export default class PedidoController {
 
         return pedidoResponse;
     }
-    /**
-     * Atualizar status de um pedido
-     * @param body 
-     * @returns 
-     */
-    @Put("/status")
-    public async atualizarStatusPedido(@Body() body: PedidoStatusRequest): Promise<boolean> {
-        const resposta = await this.cadastrarPedidoUseCase.atualizaPedido(body.id, body.status);
-        return resposta;
-    }
-
+    
     /**
      * Atualização pela mensageria
      * @returns

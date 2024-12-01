@@ -1,29 +1,35 @@
 import express from "express";
 import PedidoController from "../controllers/PedidoController";
+import { ValidarClienteUseCase } from "../../../application/usecases/ValidarClienteUseCase";
 import { PedidoGateway } from "../../database/gateways/PedidoGateway";
-import { filaSQS } from "../../sqs/sqs";
+import { FilaSQS } from "../../sqs/sqs";
+import { ValidarClienteController } from "../controllers/ValidaClienteController";
+import { ValidarClienteGateway } from "../../database/gateways/ValidarClienteGateway";
 
 const router = express.Router()
+
+const sendResponse = (res: express.Response, statusCode: number, data: any) => {
+    if (data) {
+        return res.status(statusCode).send(data);
+    }
+    return res.status(404).send("Não encontrado");
+};
 
 //Pedido
 ///2ªFase - Entregáveis 1 - Gravar pedido
 router.post("/pedido", async (req, res) => {
     try {
-        /*let authHeader = req.headers.authorization;
-        
-        if (!authHeader) {
-            return res.status(401).json({ error: "Cabeçalho de Autorização não encontrado" });
-        }
-        //Retorna se token é de um cliente válido
-        const cliGate = new ClienteGateway();
-        const cli = await cliGate.buscarPorToken(authHeader);
-        if (cli) {
-            req.body.cliente = cli.id;
-        }*/
+       const validaClienteController = new ValidarClienteController(new ValidarClienteGateway());
+       const clienteAchado = await validaClienteController.validar(req);
+       if (clienteAchado.id == 0) {
+        return res.status(500).json({erro: 'Cliente inválido'});
+       }
 
-        console.log("body", req.body);
+       console.log("body", req.body);
+       req.body.cliente = clienteAchado;
+       console.log("body", req.body);
 
-        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
+        const controller = new PedidoController(new PedidoGateway(), new FilaSQS());
         const item = await controller.cadastrarPedido(req.body);
 
         return res.status(201).send(item);
@@ -34,45 +40,14 @@ router.post("/pedido", async (req, res) => {
         }
     }
 });
-///2ªFase - Entregáveis 1 - v. Atualizar status do pedido
-router.put("/pedido/status", async (req, res) => {
-    try {
-        /*let authHeader = req.headers.authorization;
-        
-        if (!authHeader) {
-            return res.status(401).json({ error: "Cabeçalho de Autorização não encontrado" });
-        }
-        //Retorna se token é de um cliente válido
-        const cliGate = new ClienteGateway();
-        const cli = await cliGate.buscarPorToken(authHeader);
-        if (cli) {
-            req.body.cliente = cli.id;
-        }*/
-        
-        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
-        const item = await controller.atualizarStatusPedido(req.body);
-
-        return res.status(201).send(item);
-    }
-    catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ erro: error.message });
-        }
-    }
-})
 ///1ªFase - Entregáveis 2 - vi. Listar pedidos
 router.get("/pedido/listagem/:status", async (req, res) => {
     try {
-        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
+        const controller = new PedidoController(new PedidoGateway(), new FilaSQS());
         console.log("status",req.params.status);
         const resposta = await controller.buscaPorStatus(req.params.status);
 
-        if (resposta) {
-            return res.status(201).send(resposta);
-        }
-        else {
-            return res.status(404).send("Pedido não encontrado");
-        }
+        sendResponse(res,201,resposta);
     }
     catch (error) {
         if (error instanceof Error) {
@@ -87,15 +62,10 @@ router.get("/pedido/listagem/:status", async (req, res) => {
 ////3. Pedidos com status Finalizado (ENTREGUE) não devem aparecer na lista
 router.get("/pedido/status/", async (req, res) => {
     try {
-        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
+        const controller = new PedidoController(new PedidoGateway(), new FilaSQS());
         const resposta = await controller.buscaPorStatusModulo2();
 
-        if (resposta) {
-            return res.status(201).send(resposta);
-        }
-        else {
-            return res.status(404).send("Pedido não encontrado");
-        }
+        sendResponse(res,201,resposta);
     }
     catch (error) {
         if (error instanceof Error) {
@@ -107,15 +77,10 @@ router.get("/pedido/status/", async (req, res) => {
 ///Buscar pedido
 router.get("/pedido/id/:id", async (req, res) => {
     try {
-        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
+        const controller = new PedidoController(new PedidoGateway(), new FilaSQS());
         const resposta = await controller.buscaPorId(req.params.id);
 
-        if (resposta) {
-            return res.status(201).send(resposta);
-        }
-        else {
-            return res.status(404).send("Pedido não encontrado");
-        }
+        sendResponse(res,201,resposta);
     }
     catch (error) {
         if (error instanceof Error) {
@@ -127,7 +92,7 @@ router.get("/pedido/id/:id", async (req, res) => {
 ///Atualizar status
 router.get("/pedido/atualizastatus/", async(req, res) => {
     try {
-        const controller = new PedidoController(new PedidoGateway(), new filaSQS());
+        const controller = new PedidoController(new PedidoGateway(), new FilaSQS());
         const resposta = await controller.atualizarStatusMensageria();
 
         if (resposta) {

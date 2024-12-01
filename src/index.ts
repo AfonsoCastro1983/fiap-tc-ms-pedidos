@@ -10,6 +10,7 @@ dotenv.config();
 const PORT = process.env.PORT || 8000;
 
 const app: Application = express();
+app.disable("x-powered-by");
 
 console.log('MODE:', process.env.MODE);
 
