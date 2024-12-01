@@ -7,15 +7,28 @@ export class ValidarClienteGateway implements IValidarClienteGateway {
 
   async validarToken(token: string): Promise<ICliente> {
     const headers = { 'Content-type': 'application/json', 'Authorization': token };
+    console.log('Gateway-validarToken', headers);
     try {
-      const response = await axios.get(`${this.baseUrl}/cliente/token`, { headers});
-      
-      return {
-        id: response.data.id,
-        nome: response.data.nome,
-        email: response.data.email,
-        cpf: response.data.cpf
+      const response = await axios.get(`${this.baseUrl}/cliente/token/`, { headers });
+      console.log('Gateway-validarToken-response', response.data);
+
+      if (response.data.cliente) {
+        return {
+          id: response.data.cliente.id,
+          nome: response.data.cliente.nome,
+          email: response.data.cliente.email,
+          cpf: response.data.cliente.cpf
+        }
       }
+      else {
+        return {
+          id: 0,
+          nome: '',
+          email: '',
+          cpf: ''
+        }
+      }
+
     } catch (error) {
       console.error('Error validating token:', error);
       return {

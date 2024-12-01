@@ -20,6 +20,7 @@ router.post("/pedido", async (req, res) => {
     try {
        const validaClienteController = new ValidarClienteController(new ValidarClienteGateway());
        const clienteAchado = await validaClienteController.validar(req);
+       console.log(clienteAchado);
        if (clienteAchado.id == 0) {
         return res.status(500).json({erro: 'Cliente inválido'});
        }

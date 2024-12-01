@@ -97,6 +97,10 @@ export class PedidoGateway implements IPedidoGateway {
             }, element.quantidade.valor);
         });
 
+        if (pdd.status != pedido.status) {
+            pdd.atualizarStatus(pedido.status);
+        }
+
         // Constrói o objeto de saída seguindo a estrutura da interface IPedido
         const pedidoGravacao = PedidoMapper.toDTO(pdd);
 
@@ -137,6 +141,7 @@ export class PedidoGateway implements IPedidoGateway {
         console.log('AtualizaPedido(', pedido, ',', novo_status, ')');
 
         pedidoRegistrado.atualizarStatus(novo_status);
+        console.log('AtualizaPedido-Atualizado(', pedidoRegistrado.status,')');
 
         pedidoRegistrado = await this.criarPedido(pedidoRegistrado);
         return pedidoRegistrado;
