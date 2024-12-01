@@ -9,7 +9,7 @@ export class Preco {
     }
   
     get valor(): number {
-      return this._valor;
+      return parseFloat(this._valor.toFixed(2));
     }
   
     somar(outroDinheiro: Preco): Preco {
