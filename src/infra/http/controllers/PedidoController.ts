@@ -1,4 +1,4 @@
-import { Body, Post, Get, Route, Tags, Path, Put } from "tsoa";
+import { Body, Post, Get, Route, Tags, Path } from "tsoa";
 import { CadastrarPedidoDto } from "../../../domain/dtos/CadastrarPedidoDto";
 import { CadastrarPedidoUseCase } from "../../../application/usecases/CadastrarPedidoUseCase";
 import { ListarPedidosUseCase } from "../../../application/usecases/ListarPedidoUseCase";

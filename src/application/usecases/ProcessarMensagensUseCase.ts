@@ -4,8 +4,8 @@ import { IMensagemTransacao } from "../interfaces/IMensagemTransacaoFila";
 import { CadastrarPedidoUseCase } from "./CadastrarPedidoUseCase";
 
 export class ProcessarMensagensFilaUseCase {
-    private _filaMensageria: IReceberFilaMensageria;
-    private _pedidoUseCase: CadastrarPedidoUseCase;
+    private readonly _filaMensageria: IReceberFilaMensageria;
+    private readonly _pedidoUseCase: CadastrarPedidoUseCase;
 
     constructor(filaMensageria: IReceberFilaMensageria, pedidoGateway: IPedidoGateway) {
         this._filaMensageria = filaMensageria;
